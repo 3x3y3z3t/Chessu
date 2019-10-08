@@ -49,8 +49,8 @@ namespace CBack.Pieces
 
             return false;
         }
-
-        public bool Attack(Piece _piece)
+        
+        public virtual bool Attack(Piece _piece)
         {
             return true;
             // TODO: *hint* *hint*;
