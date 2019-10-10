@@ -92,8 +92,10 @@ namespace Chessu
                 { "sheet", Image.FromFile(@"res\img\piecesheet.png") },
                 { "1_6", Image.FromFile(@"res\img\70px_1_6.png") },
                 { "1_3", Image.FromFile(@"res\img\70px_1_3.png") },
+                { "1_2", Image.FromFile(@"res\img\70px_1_2.png") },
                 { "2_6", Image.FromFile(@"res\img\70px_2_6.png") },
                 { "2_3", Image.FromFile(@"res\img\70px_2_3.png") },
+                { "2_2", Image.FromFile(@"res\img\70px_2_2.png") },
             };
 
             Game = new CBack.Game(new CBack.HumanPlayer(CBack.PieceColor.White), new CBack.HumanPlayer(CBack.PieceColor.Black));

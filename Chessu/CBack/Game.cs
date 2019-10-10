@@ -79,18 +79,21 @@ namespace CBack
             AddPiece(new RookPiece(7, 0, PieceColor.Black));
             AddPiece(new RookPiece(7, 7, PieceColor.Black));
 
-            //AddPiece(new PawnPiece(1, 0, PieceColor.White));
-            //AddPiece(new PawnPiece(1, 1, PieceColor.White));
-            //AddPiece(new PawnPiece(1, 2, PieceColor.White));
-            //AddPiece(new PawnPiece(1, 3, PieceColor.White));
-            //AddPiece(new PawnPiece(1, 4, PieceColor.White));
-            //AddPiece(new PawnPiece(1, 5, PieceColor.White));
-            //AddPiece(new PawnPiece(1, 6, PieceColor.White));
-            //AddPiece(new PawnPiece(1, 7, PieceColor.White));
+            AddPiece(new QueenPiece(7, 3, PieceColor.Black));
+
+            AddPiece(new PawnPiece(1, 0, PieceColor.White));
+            AddPiece(new PawnPiece(1, 1, PieceColor.White));
+            AddPiece(new PawnPiece(1, 2, PieceColor.White));
+            AddPiece(new PawnPiece(1, 3, PieceColor.White));
+            AddPiece(new PawnPiece(1, 4, PieceColor.White));
+            AddPiece(new PawnPiece(1, 5, PieceColor.White));
+            AddPiece(new PawnPiece(1, 6, PieceColor.White));
+            AddPiece(new PawnPiece(1, 7, PieceColor.White));
 
             AddPiece(new RookPiece(0, 0, PieceColor.White));
             AddPiece(new RookPiece(0, 7, PieceColor.White));
 
+            AddPiece(new QueenPiece(0, 3, PieceColor.White));
 
 
 
@@ -126,7 +129,10 @@ namespace CBack
             return true;
         }
 
-        private bool SelectPiece0(Piece _pcs)
+        /// <summary>
+        /// Obsoleted. Use SelectPiece(Piece) instead.
+        /// </summary>
+        private bool SelectPieceLegacy(Piece _pcs)
         {
             SelectedPiece = _pcs;
             if (_pcs == null)
@@ -163,7 +169,7 @@ namespace CBack
                 }
 
                 // now there is a piece of player's color under the click;
-                return SelectPiece1(piece);
+                return SelectPiece(piece);
             }
             //if (SelectedPiece == piece)
             //{
@@ -190,7 +196,7 @@ namespace CBack
             if (IsSpecificFlagSet(cellStatus, CellStatus.AllyOccupied))
             {
                 Console.WriteLine($"Ally Piece occupied this cell: cell({(char)(_col + 'A')}{_row + 1}), piece({piece}). Selecting new piece now.");
-                return SelectPiece1(piece);
+                return SelectPiece(piece);
             }
             if (IsSpecificFlagSet(cellStatus, CellStatus.Movable))
             {
@@ -243,7 +249,7 @@ namespace CBack
             return true;
         }
 
-        private bool SelectPiece1(Piece _pcs)
+        private bool SelectPiece(Piece _pcs)
         {
             if (_pcs == null)
             {

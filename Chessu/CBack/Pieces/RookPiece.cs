@@ -15,7 +15,7 @@ namespace CBack.Pieces
 
 
 
-            Console.WriteLine("RookMove!");
+            //Console.WriteLine("RookMove!");
             return base.Move(_dstRow, _dstCol);
         }
 

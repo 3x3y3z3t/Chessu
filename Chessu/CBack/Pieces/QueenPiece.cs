@@ -7,16 +7,7 @@ namespace CBack.Pieces
     {
         public QueenPiece(int _row = 0, int _column = 0, PieceColor _color = PieceColor.Black)
             : base(_row, _column, _color, PieceType.Queen)
-        {
-            MovementDirection.Add(Tuple.Create(-1, -1)); // 1;
-            MovementDirection.Add(Tuple.Create(+0, -1)); // 2;
-            MovementDirection.Add(Tuple.Create(+1, -1)); // 3;
-            MovementDirection.Add(Tuple.Create(-1, +0)); // 4;
-            MovementDirection.Add(Tuple.Create(+1, +0)); // 6;
-            MovementDirection.Add(Tuple.Create(-1, +1)); // 7;
-            MovementDirection.Add(Tuple.Create(+0, +1)); // 8;
-            MovementDirection.Add(Tuple.Create(+1, +1)); // 9;
-        }
+        { }
 
         public override bool Move(int _dstRow, int _dstCol)
         {
@@ -24,7 +15,7 @@ namespace CBack.Pieces
 
 
 
-            Console.WriteLine("QueenMove!");
+            //Console.WriteLine("QueenMove!");
             return base.Move(_dstRow, _dstCol);
         }
 
@@ -34,7 +25,13 @@ namespace CBack.Pieces
 
             int[] hmap = CastHorizontalRay(_table);
             int[] vmap = CastVerticalRay(_table);
+            int[] swne = CastSWNERay(_table);
+            int[] senw = CastSENWRay(_table);
 
+            for (int i = 0; i < _table.Length; ++i)
+            {
+                map[i] |= (hmap[i] | vmap[i] | swne[i] | senw[i]);
+            }
 
             return map;
         }

@@ -49,7 +49,7 @@ namespace CBack.Pieces
 
             return false;
         }
-        
+
         public virtual bool Attack(Piece _piece)
         {
             return true;
@@ -85,7 +85,7 @@ namespace CBack.Pieces
             }
             return true;
         }
-        
+
         protected int[] CastVerticalRay(Piece[] _table)
         {
             int[] map = new int[_table.Length];
@@ -121,11 +121,10 @@ namespace CBack.Pieces
                         break;
                 }
             }
-            
+
             return map;
         }
 
-        // TODO: rewrite Raycast;
         protected int[] CastHorizontalRay(Piece[] _table)
         {
             int[] map = new int[_table.Length];
@@ -147,7 +146,7 @@ namespace CBack.Pieces
                 }
             }
 
-            // cast direction: 8;
+            // cast direction: 6;
             for (int col = Column + 1; col < Game.RowSize; ++col)
             {
                 int pos = Game.GetIndex(Row, col);
@@ -166,25 +165,114 @@ namespace CBack.Pieces
         }
 
         // TODO: rewrite Raycast;
-        private int[] CastSWNERay(Piece[] _table)
+        protected int[] CastSWNERay(Piece[] _table)
         {
-            // cast direction: SW->NE (bottom-left->top-right);
             int[] map = new int[_table.Length];
             if (!CanPerformRaycast())
                 return map;
+
+            int step, row, col;
+            // cast direction: 1;
+            step = 1;
+            do
+            {
+                row = Row - step;
+                col = Column - step;
+                if (row < 0 || col < 0)
+                    break;
+                int pos = Game.GetIndex(row, col);
+                if (_table[pos] == null)
+                    map[pos] |= (int)CellStatus.Movable;
+                else
+                {
+                    if (_table[pos].Color != Color)
+                        map[pos] |= (int)CellStatus.Targetable;
+                    if (!CanJump)
+                        break;
+                }
+                ++step;
+            } while (true);
+
+            // cast direction: 9;
+            step = 1;
+            do
+            {
+                row = Row + step;
+                col = Column + step;
+                if (row >= Game.ColumnSize || col >= Game.RowSize)
+                    break;
+                int pos = Game.GetIndex(row, col);
+                if (_table[pos] == null)
+                    map[pos] |= (int)CellStatus.Movable;
+                else
+                {
+                    if (_table[pos].Color != Color)
+                        map[pos] |= (int)CellStatus.Targetable;
+                    if (!CanJump)
+                        break;
+                }
+                ++step;
+            } while (true);
 
             return map;
         }
 
         // TODO: rewrite Raycast;
-        private int[] CastSENWRay(Piece[] _table)
+        protected int[] CastSENWRay(Piece[] _table)
         {
-            // cast direction: SE->NW (bottom-right->top-left);
             int[] map = new int[_table.Length];
             if (!CanPerformRaycast())
                 return map;
 
+            int step, row, col;
+            // cast direction: 3;
+            step = 1;
+            do
+            {
+                row = Row - step;
+                col = Column + step;
+                if (row < 0 || col >= Game.RowSize)
+                    break;
+                int pos = Game.GetIndex(row, col);
+                if (_table[pos] == null)
+                    map[pos] |= (int)CellStatus.Movable;
+                else
+                {
+                    if (_table[pos].Color != Color)
+                        map[pos] |= (int)CellStatus.Targetable;
+                    if (!CanJump)
+                        break;
+                }
+                ++step;
+            } while (true);
+
+            // cast direction: 7;
+            step = 1;
+            do
+            {
+                row = Row + step;
+                col = Column - step;
+                if (row >= Game.ColumnSize || col < 0)
+                    break;
+                int pos = Game.GetIndex(row, col);
+                if (_table[pos] == null)
+                    map[pos] |= (int)CellStatus.Movable;
+                else
+                {
+                    if (_table[pos].Color != Color)
+                        map[pos] |= (int)CellStatus.Targetable;
+                    if (!CanJump)
+                        break;
+                }
+                ++step;
+            } while (true);
+
             return map;
+        }
+
+        public override string ToString()
+        {
+            return $"{Type}_{Color}";
         }
 
         public override bool Equals(object obj)
@@ -195,11 +283,6 @@ namespace CBack.Pieces
                    Column == piece.Column &&
                    Color == piece.Color &&
                    Type == piece.Type;
-        }
-
-        public override string ToString()
-        {
-            return $"{Type}_{Color}";
         }
 
         public override int GetHashCode()

@@ -48,7 +48,7 @@
             this.lblLog.Name = "lblLog";
             this.lblLog.Size = new System.Drawing.Size(55, 14);
             this.lblLog.TabIndex = 1;
-            this.lblLog.Text = "label1";
+            this.lblLog.Text = "lblLog";
             // 
             // Form1
             // 
@@ -59,8 +59,8 @@
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.Name = "ChessuForm";
+            this.Text = "Chessu";
             this.ResumeLayout(false);
             this.PerformLayout();
 
