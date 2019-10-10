@@ -37,6 +37,8 @@ namespace CBack
         EnemyOccupied = 1 << 4,
         AllyOccupied = 1 << 5,
         MeOccupied = 1 << 6,
+
+        EnPassant = 1 << 7,
     }
 
     public class Game
@@ -55,6 +57,7 @@ namespace CBack
         public int[] TableStatus { get; private set; }
         public Tuple<int, int> LastMovement { get; private set; }
 
+        public PawnPiece LastMovedPawn { get; private set; }
         private bool newGame = true;
 
         public Game(Player _whitePlayer, Player _blackPlayer)
@@ -66,7 +69,8 @@ namespace CBack
             TableStatus = new int[RowSize * ColumnSize];
             //TableStatus = Enumerable.Repeat(1, RowSize * ColumnSize).ToArray(); // LINQ approach;
             LastMovement = null;
-            
+            LastMovedPawn = null;
+
             // now adding pieces...
             AddPiece(new PawnPiece(6, 0, PieceColor.Black));
             AddPiece(new PawnPiece(6, 1, PieceColor.Black));
@@ -83,6 +87,7 @@ namespace CBack
             AddPiece(new RookPiece(7, 0, PieceColor.Black));
             AddPiece(new RookPiece(7, 7, PieceColor.Black));
             AddPiece(new QueenPiece(7, 3, PieceColor.Black));
+            AddPiece(new KingPiece(7, 4, PieceColor.Black));
 
             AddPiece(new PawnPiece(1, 0, PieceColor.White));
             AddPiece(new PawnPiece(1, 1, PieceColor.White));
@@ -99,7 +104,8 @@ namespace CBack
             AddPiece(new RookPiece(0, 0, PieceColor.White));
             AddPiece(new RookPiece(0, 7, PieceColor.White));
             AddPiece(new QueenPiece(0, 3, PieceColor.White));
-            
+            AddPiece(new KingPiece(0, 4, PieceColor.White));
+
 
             //AddPiece(new KingPiece(4, 4, PieceColor.White));
 
@@ -230,22 +236,6 @@ namespace CBack
             Console.WriteLine("Control should never fall down here.");
             return false;
 
-            switch (TableStatus[GetIndex(_row, _col)])
-            {
-                case (int)CellStatus.Selecting: // which means unselect the piece;
-                case (int)CellStatus.Empty: // which also means unselect the piece;
-                case (int)CellStatus.Movable:
-                case (int)CellStatus.Targetable:
-                default:
-                    /* BUG: if a piece just moved is targetable, control will fall down here.
-                     * Reason: the target cell is marked as LastMovement (which set flag 31).
-                     * Solution: use if-else instead of switch-case, and check for flag set.
-                     * Solution: prority down the LastMovement flag.
-                     */
-
-                    return false;
-            }
-
         }
 
         private bool UnselectCurrentCell()
@@ -279,11 +269,25 @@ namespace CBack
         /// <returns>Always returns true.</returns>
         private bool MovePieceTo(int _row, int _col)
         {
+            if (LastMovedPawn != null)
+                LastMovedPawn.EnPassantEligible = false;
+            if (SelectedPiece.Type == PieceType.Pawn)
+                LastMovedPawn = SelectedPiece as PawnPiece;
+            else
+                LastMovedPawn = null;
             // the SelectedPiece is being moved so there is no need to get the piece;
             // the move is always a valid move so there is no need to validate it;
             LastMovement = Tuple.Create(GetIndex(SelectedPiece.Row, SelectedPiece.Column), GetIndex(_row, _col));
             Array.Copy(Table, GetIndex(SelectedPiece.Row, SelectedPiece.Column), Table, GetIndex(_row, _col), 1);
             Table[GetIndex(SelectedPiece.Row, SelectedPiece.Column)] = null;
+            int pcsRow = _row;
+            if (IsFlagSetAtCell(_row, _col, CellStatus.EnPassant))
+            {
+                if (SelectedPiece.Color == PieceColor.Black)
+                    Table[GetIndex(pcsRow + 1, _col)] = null;
+                else
+                    Table[GetIndex(pcsRow - 1, _col)] = null;
+            }
             SelectedPiece.Move(_row, _col);
             Switch();
             return true;
@@ -299,13 +303,23 @@ namespace CBack
         /// false if the attack success and the SelectedPiece stays at its cell.</returns>
         private bool AttackPieceAt(int _row, int _col)
         {
-            bool dead = SelectedPiece.Attack(Table[GetIndex(_row, _col)]);
+            int pcsRow = _row;
+            if (IsFlagSetAtCell(_row, _col, CellStatus.EnPassant))
+            {
+                if (SelectedPiece.Color == PieceColor.Black)
+                    ++pcsRow;
+                else
+                    --pcsRow;
+            }
+            bool dead = SelectedPiece.Attack(Table[GetIndex(pcsRow, _col)]);
             if (dead)
             {
                 MovePieceTo(_row, _col);
             }
             else
             {
+                if (LastMovedPawn != null)
+                    LastMovedPawn.EnPassantEligible = false;
                 // pieces stay still!
                 LastMovement = Tuple.Create(GetIndex(SelectedPiece.Row, SelectedPiece.Column), GetIndex(_row, _col));
                 Switch();
@@ -340,12 +354,7 @@ namespace CBack
 
         }
 
-        /// <summary>
-        /// Obsoleted. Use SelectCell(int, int) instead.
-        /// </summary>
-        /// <param name="_row"></param>
-        /// <param name="_col"></param>
-        /// <returns></returns>
+        [Obsolete("This method is obsoleted. Use SelectCell(int, int) instead.")]
         public bool SelectPieceAt(int _row, int _col)
         {
             if (_row < 0 || _row >= ColumnSize || _col < 0 || _col >= RowSize)

@@ -110,7 +110,7 @@ namespace CBack.Pieces
 
             if (Game.IsSpecificFlagSet(_map[_pos], CellStatus.EnemyOccupied))
                 _map[_pos] |= (int)CellStatus.Targetable;
-            
+
             return CanJump;
         }
 
@@ -193,7 +193,7 @@ namespace CBack.Pieces
                 if (row >= Game.ColumnSize || col >= Game.RowSize)
                     break;
                 int pos = Game.GetIndex(row, col);
-                if(!RaycastDownLevel(_map, pos, step))
+                if (!RaycastDownLevel(_map, pos, step))
                     break;
                 ++step;
             } while (true);
@@ -237,6 +237,13 @@ namespace CBack.Pieces
             } while (true);
 
             return _map;
+        }
+
+        public static bool IsPieceOfType(Piece _pcs, PieceType _type)
+        {
+            if (_pcs == null)
+                return false;
+            return _pcs.Type == _type;
         }
 
         public override string ToString()
