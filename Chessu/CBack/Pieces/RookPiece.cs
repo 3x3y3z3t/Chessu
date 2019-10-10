@@ -23,8 +23,8 @@ namespace CBack.Pieces
         {
             int[] map = base.GetMovableMap(_table);
 
-            int[] hmap = CastHorizontalRay(_table);
-            int[] vmap = CastVerticalRay(_table);
+            int[] hmap = CastHorizontalRay(map);
+            int[] vmap = CastVerticalRay(map);
 
             for (int i = 0; i < _table.Length; ++i)
             {

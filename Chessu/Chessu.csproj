@@ -49,6 +49,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CBack\Game.cs" />
+    <Compile Include="CBack\Pieces\BishopPiece.cs" />
+    <Compile Include="CBack\Pieces\KingPiece.cs" />
+    <Compile Include="CBack\Pieces\KnightPiece.cs" />
     <Compile Include="CBack\Pieces\PawnPiece.cs" />
     <Compile Include="CBack\Pieces\Piece.cs" />
     <Compile Include="CBack\Pieces\QueenPiece.cs" />

@@ -13,6 +13,7 @@ namespace CBack
         King = 1,
         Queen = 2,
         Rook = 3,
+        Bishop = 4,
         Knight = 5,
         Pawn = 6,
     }
@@ -65,7 +66,7 @@ namespace CBack
             TableStatus = new int[RowSize * ColumnSize];
             //TableStatus = Enumerable.Repeat(1, RowSize * ColumnSize).ToArray(); // LINQ approach;
             LastMovement = null;
-
+            
             // now adding pieces...
             AddPiece(new PawnPiece(6, 0, PieceColor.Black));
             AddPiece(new PawnPiece(6, 1, PieceColor.Black));
@@ -75,10 +76,12 @@ namespace CBack
             AddPiece(new PawnPiece(6, 5, PieceColor.Black));
             AddPiece(new PawnPiece(6, 6, PieceColor.Black));
             AddPiece(new PawnPiece(6, 7, PieceColor.Black));
-
+            AddPiece(new KnightPiece(7, 1, PieceColor.Black));
+            AddPiece(new KnightPiece(7, 6, PieceColor.Black));
+            AddPiece(new BishopPiece(7, 2, PieceColor.Black));
+            AddPiece(new BishopPiece(7, 5, PieceColor.Black));
             AddPiece(new RookPiece(7, 0, PieceColor.Black));
             AddPiece(new RookPiece(7, 7, PieceColor.Black));
-
             AddPiece(new QueenPiece(7, 3, PieceColor.Black));
 
             AddPiece(new PawnPiece(1, 0, PieceColor.White));
@@ -89,12 +92,16 @@ namespace CBack
             AddPiece(new PawnPiece(1, 5, PieceColor.White));
             AddPiece(new PawnPiece(1, 6, PieceColor.White));
             AddPiece(new PawnPiece(1, 7, PieceColor.White));
-
+            AddPiece(new KnightPiece(0, 1, PieceColor.White));
+            AddPiece(new KnightPiece(0, 6, PieceColor.White));
+            AddPiece(new BishopPiece(0, 2, PieceColor.White));
+            AddPiece(new BishopPiece(0, 5, PieceColor.White));
             AddPiece(new RookPiece(0, 0, PieceColor.White));
             AddPiece(new RookPiece(0, 7, PieceColor.White));
-
             AddPiece(new QueenPiece(0, 3, PieceColor.White));
+            
 
+            //AddPiece(new KingPiece(4, 4, PieceColor.White));
 
 
             //TableStatus[1] = (int)CellStatus.Movable;

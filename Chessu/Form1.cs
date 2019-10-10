@@ -91,11 +91,17 @@ namespace Chessu
                 { "board", Image.FromFile(@"res\img\board.png") },
                 { "sheet", Image.FromFile(@"res\img\piecesheet.png") },
                 { "1_6", Image.FromFile(@"res\img\70px_1_6.png") },
+                { "1_5", Image.FromFile(@"res\img\70px_1_5.png") },
+                { "1_4", Image.FromFile(@"res\img\70px_1_4.png") },
                 { "1_3", Image.FromFile(@"res\img\70px_1_3.png") },
                 { "1_2", Image.FromFile(@"res\img\70px_1_2.png") },
+                { "1_1", Image.FromFile(@"res\img\70px_1_1.png") },
                 { "2_6", Image.FromFile(@"res\img\70px_2_6.png") },
+                { "2_5", Image.FromFile(@"res\img\70px_2_5.png") },
+                { "2_4", Image.FromFile(@"res\img\70px_2_4.png") },
                 { "2_3", Image.FromFile(@"res\img\70px_2_3.png") },
                 { "2_2", Image.FromFile(@"res\img\70px_2_2.png") },
+                { "2_1", Image.FromFile(@"res\img\70px_2_1.png") },
             };
 
             Game = new CBack.Game(new CBack.HumanPlayer(CBack.PieceColor.White), new CBack.HumanPlayer(CBack.PieceColor.Black));
@@ -223,6 +229,11 @@ namespace Chessu
                     continue;
 
                 string key = (int)pcs.Color + "_" + (int)pcs.Type;
+                if (!SpriteCache.ContainsKey(key))
+                {
+                    //Console.WriteLine($"Sprite not found for piece({pcs}). Expected filename \"70px_{key}.png\"");
+                    continue;
+                }
                 if (pcs.Equals(Game.SelectedPiece))
                 {
                     if (dragging)
