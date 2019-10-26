@@ -26,6 +26,8 @@ namespace CBack.Pieces
         public override int[] GetMovableMap()
         {
             int[] map = base.GetMovableMap();
+            
+
 
             int mod1 = Color == PieceColor.Black ? -1 : 1;
             int front = (Row + mod1) * Game.ColumnSize + Column;

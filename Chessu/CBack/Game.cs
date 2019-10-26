@@ -42,6 +42,15 @@ namespace CBack
         EnPassant = 1 << 21,
     }
 
+    public enum CheckStatus
+    {
+        None = 0,
+        NormalCheck = 1,
+        KightCheck = 2,
+        DoubleCheck = 3,
+        ForkedCheck = 4,
+    }
+
     public class Game
     {
         public Player WhitePlayer { get; set; }
@@ -58,6 +67,7 @@ namespace CBack
         public int[] TableStatus { get; private set; }
         public Tuple<int, int> LastMovement { get; private set; }
         public List<int> LastCheck { get; private set; }
+        public CheckStatus LastCheckStatus { get; private set; }
 
         public PawnPiece LastMovedPawn { get; private set; }
         private bool newGame = true;
@@ -339,25 +349,7 @@ namespace CBack
             }
             SelectedPiece.Move(_row, _col);
 
-            // TODO: verify for check;
-            LastCheck.Clear();
-            foreach (PieceColor color in Enum.GetValues(typeof(PieceColor)))
-            {
-                List<Piece> pieces = GetPieces(PieceType.King, color);
-
-                foreach (Piece pcs in pieces)
-                {
-                    KingPiece kingPcs = pcs as KingPiece;
-
-                    int[] checkmap = kingPcs.GetCheckMap();
-                    for (int i = 0; i < TableStatus.Length; ++i)
-                    {
-                        if (IsSpecificFlagSet(checkmap[i], CellStatus.Checking))
-                            LastCheck.Add(i);
-                    }
-                }
-
-            }
+            UpdateCheckStatus();
 
 
             Switch();
@@ -395,6 +387,34 @@ namespace CBack
                 Switch();
             }
             return dead;
+        }
+
+        private bool UpdateCheckStatus()
+        {
+            // TODO: verify for check;
+            LastCheck.Clear();
+            foreach (PieceColor color in Enum.GetValues(typeof(PieceColor)))
+            {
+                List<Piece> pieces = GetPieces(PieceType.King, color);
+
+                foreach (Piece pcs in pieces)
+                {
+                    KingPiece kingPcs = pcs as KingPiece;
+
+                    int[] checkmap = kingPcs.GetCheckMap();
+                    for (int i = 0; i < TableStatus.Length; ++i)
+                    {
+                        if (IsSpecificFlagSet(checkmap[i], CellStatus.Checking))
+                            LastCheck.Add(i);
+                    }
+                }
+
+            }
+
+
+
+
+            return true;
         }
 
         private bool AppendLastMoveStats()

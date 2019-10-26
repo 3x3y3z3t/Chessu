@@ -19,6 +19,8 @@ namespace CBack.Pieces
         public int MoveRange { get; set; }
 
         public Game Owner { get; set; }
+
+        protected CheckStatus lastCheckStatus;
         
         private static readonly PieceType[] raycastRestricType = new PieceType[]
         {
@@ -238,6 +240,47 @@ namespace CBack.Pieces
             } while (true);
 
             return _map;
+        }
+
+        private bool A()
+        {
+            return false;
+
+            List<Piece> pieces = Owner.GetPieces(PieceType.King, Color);
+            int checkCount = 0;
+            foreach(Piece pcs in pieces)
+            {
+                if ((pcs as KingPiece).CheckingPieces.Count > 0)
+                    ++checkCount;
+
+                if ((pcs as KingPiece).CheckingPieces[0].Type == PieceType.Knight)
+                {
+                    lastCheckStatus = CheckStatus.KightCheck;
+                    /* TODO: knight check
+                     * - Or the king must move,
+                     * - Or the checking Knight must be removed.
+                     */
+                }
+                if ((pcs as KingPiece).CheckingPieces.Count > 1)
+                {
+                    lastCheckStatus = CheckStatus.DoubleCheck;
+                    /* TODO: double check
+                     * - Only the checked King is able to move.
+                     */
+                }
+            }
+
+            if (checkCount > 1)
+            {
+                lastCheckStatus = CheckStatus.ForkedCheck;
+                /* TODO: forked check
+                 * - The checking piece must be removed.
+                 */
+            }
+
+
+
+
         }
 
         public static bool IsPieceOfType(Piece _pcs, PieceType _type)

@@ -23,7 +23,7 @@ namespace CBack.Pieces
 
 
 
-            //Console.WriteLine("BishopMove!");
+
             return base.Move(_dstRow, _dstCol);
         }
 

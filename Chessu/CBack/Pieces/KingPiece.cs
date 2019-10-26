@@ -6,12 +6,13 @@ namespace CBack.Pieces
 {
     public class KingPiece : Piece
     {
-
+        public List<Piece> CheckingPieces { get; private set; }
 
         public KingPiece(int _row, int _column, PieceColor _color, Game _owner)
             : base(_row, _column, _color, PieceType.King, _owner)
         {
             MoveRange = 2;
+            CheckingPieces = new List<Piece>();
         }
 
         public override bool Move(int _dstRow, int _dstCol)
@@ -86,6 +87,7 @@ namespace CBack.Pieces
         public int[] GetCheckMap()
         {
             int[] map = new int[Owner.Table.Length];
+            CheckingPieces.Clear();
             foreach (PieceColor color in Enum.GetValues(typeof(PieceColor)))
             {
                 if (color == Color)
@@ -101,6 +103,7 @@ namespace CBack.Pieces
                     int flags = enemyMap[Game.GetIndex(Row, Column)];
                     if (Game.IsSpecificFlagSet(flags, CellStatus.Targetable))
                     {
+                        CheckingPieces.Add(pcs);
                         map[Game.GetIndex(pcs.Row, pcs.Column)] |= (int)CellStatus.Checking;
                         map[Game.GetIndex(Row, Column)] |= (int)CellStatus.Checking;
                     }
