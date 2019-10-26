@@ -8,8 +8,8 @@ namespace CBack.Pieces
     {
         public bool EnPassantEligible { get; set; }
 
-        public PawnPiece(int _row, int _column, PieceColor _color)
-            : base(_row, _column, _color, PieceType.Pawn)
+        public PawnPiece(int _row, int _column, PieceColor _color, Game _owner)
+            : base(_row, _column, _color, PieceType.Pawn, _owner)
         {
             EnPassantEligible = false;
         }
@@ -23,9 +23,9 @@ namespace CBack.Pieces
             return base.Move(_dstRow, _dstCol);
         }
 
-        public override int[] GetMovableMap(Piece[] _table)
+        public override int[] GetMovableMap()
         {
-            int[] map = base.GetMovableMap(_table);
+            int[] map = base.GetMovableMap();
 
             int mod1 = Color == PieceColor.Black ? -1 : 1;
             int front = (Row + mod1) * Game.ColumnSize + Column;
@@ -39,14 +39,14 @@ namespace CBack.Pieces
             }
 
             // move;
-            if (_table[front] == null)
+            if (Owner.Table[front] == null)
                 map[front] |= (int)CellStatus.Movable;
             if (FirstMove)
             {
-                if (_table[front] == null)
+                if (Owner.Table[front] == null)
                 {
                     int front2 = front + (Game.RowSize * mod1);
-                    if (_table[front2] == null)
+                    if (Owner.Table[front2] == null)
                         map[front2] |= (int)CellStatus.Movable;
                 }
             }
@@ -54,32 +54,32 @@ namespace CBack.Pieces
             // target;
             if (Column != 7)
             {
-                if (_table[front + mod1] != null)
+                if (Owner.Table[front + mod1] != null)
                 {
-                    if (_table[front + mod1].Color != Color)
+                    if (Owner.Table[front + mod1].Color != Color)
                         map[front + mod1] |= (int)CellStatus.Targetable;
                 }
             }
             if (Column != 0)
             {
-                if (_table[front - mod1] != null)
+                if (Owner.Table[front - mod1] != null)
                 {
-                    if (_table[front - mod1].Color != Color)
+                    if (Owner.Table[front - mod1].Color != Color)
                         map[front - mod1] |= (int)CellStatus.Targetable;
                 }
             }
             
             int negPos = Game.GetIndex(Row, Column - 1);
-            AppendEnPassantMove(_table, map, negPos);
+            AppendEnPassantMove(map, negPos);
             int posPos = Game.GetIndex(Row, Column + 1);
-            AppendEnPassantMove(_table, map, posPos);
+            AppendEnPassantMove(map, posPos);
 
             return map;
         }
 
-        private bool AppendEnPassantMove(Piece[] _table, int[] _map, int _pos)
+        private bool AppendEnPassantMove(int[] _map, int _pos)
         {
-            Piece pcs = _table[_pos];
+            Piece pcs = Owner.Table[_pos];
             if (IsPieceOfType(pcs, PieceType.Pawn))
             {
                 if (((PawnPiece)pcs).EnPassantEligible)

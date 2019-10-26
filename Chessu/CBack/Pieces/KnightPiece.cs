@@ -10,8 +10,8 @@ namespace CBack.Pieces
         protected readonly int[] dr = new int[] { -1, -2, -2, -1, +1, +2, +2, +1 };
         // direction:                             14, 12, 32, 36, 74, 78, 98, 96  ;
 
-        public KnightPiece(int _row = 0, int _column = 0, PieceColor _color = PieceColor.Black)
-            : base(_row, _column, _color, PieceType.Knight)
+        public KnightPiece(int _row, int _column, PieceColor _color, Game _owner)
+            : base(_row, _column, _color, PieceType.Knight, _owner)
         {
             CanJump = true;
             MoveRange = 1;
@@ -27,9 +27,9 @@ namespace CBack.Pieces
             return base.Move(_dstRow, _dstCol);
         }
 
-        public override int[] GetMovableMap(Piece[] _table)
+        public override int[] GetMovableMap()
         {
-            int[] map = base.GetMovableMap(_table);
+            int[] map = base.GetMovableMap();
 
             if (dc.Length != directionCount || dr.Length != directionCount)
             {

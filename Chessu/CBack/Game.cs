@@ -2,8 +2,7 @@
 
 using CBack.Pieces;
 using System;
-using System.Drawing;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace CBack
 {
@@ -33,12 +32,14 @@ namespace CBack
         Targetable = 1 << 1,
         LastMove = 1 << 2,
         Selecting = 1 << 3,
+        Checking = 1 << 4,
+        Protected = 1 << 5,
 
-        EnemyOccupied = 1 << 4,
-        AllyOccupied = 1 << 5,
-        MeOccupied = 1 << 6,
+        EnemyOccupied = 1 << 11,
+        AllyOccupied = 1 << 12,
+        MeOccupied = 1 << 13,
 
-        EnPassant = 1 << 7,
+        EnPassant = 1 << 21,
     }
 
     public class Game
@@ -51,7 +52,7 @@ namespace CBack
         public static int ColumnSize = 8;
         public static int MaxSize = RowSize > ColumnSize ? RowSize : ColumnSize;
 
-        public Piece[] Table { get; set; }
+        public Piece[] Table { get; protected set; }
 
         public Piece SelectedPiece { get; private set; }
         public int[] TableStatus { get; private set; }
@@ -70,46 +71,50 @@ namespace CBack
             //TableStatus = Enumerable.Repeat(1, RowSize * ColumnSize).ToArray(); // LINQ approach;
             LastMovement = null;
             LastMovedPawn = null;
-
+            
             // now adding pieces...
-            AddPiece(new PawnPiece(6, 0, PieceColor.Black));
-            AddPiece(new PawnPiece(6, 1, PieceColor.Black));
-            AddPiece(new PawnPiece(6, 2, PieceColor.Black));
-            AddPiece(new PawnPiece(6, 3, PieceColor.Black));
-            AddPiece(new PawnPiece(6, 4, PieceColor.Black));
-            AddPiece(new PawnPiece(6, 5, PieceColor.Black));
-            AddPiece(new PawnPiece(6, 6, PieceColor.Black));
-            AddPiece(new PawnPiece(6, 7, PieceColor.Black));
-            AddPiece(new KnightPiece(7, 1, PieceColor.Black));
-            AddPiece(new KnightPiece(7, 6, PieceColor.Black));
-            AddPiece(new BishopPiece(7, 2, PieceColor.Black));
-            AddPiece(new BishopPiece(7, 5, PieceColor.Black));
-            AddPiece(new RookPiece(7, 0, PieceColor.Black));
-            AddPiece(new RookPiece(7, 7, PieceColor.Black));
-            AddPiece(new QueenPiece(7, 3, PieceColor.Black));
-            AddPiece(new KingPiece(7, 4, PieceColor.Black));
+            AddPiece(new PawnPiece(6, 0, PieceColor.Black, this));
+            AddPiece(new PawnPiece(6, 1, PieceColor.Black, this));
+            AddPiece(new PawnPiece(6, 2, PieceColor.Black, this));
+            AddPiece(new PawnPiece(6, 3, PieceColor.Black, this));
+            AddPiece(new PawnPiece(6, 4, PieceColor.Black, this));
+            AddPiece(new PawnPiece(6, 5, PieceColor.Black, this));
+            AddPiece(new PawnPiece(6, 6, PieceColor.Black, this));
+            AddPiece(new PawnPiece(6, 7, PieceColor.Black, this));
+            AddPiece(new KnightPiece(7, 1, PieceColor.Black, this));
+            AddPiece(new KnightPiece(7, 6, PieceColor.Black, this));
+            AddPiece(new BishopPiece(7, 2, PieceColor.Black, this));
+            AddPiece(new BishopPiece(7, 5, PieceColor.Black, this));
+            AddPiece(new RookPiece(7, 0, PieceColor.Black, this));
+            AddPiece(new RookPiece(7, 7, PieceColor.Black, this));
+            AddPiece(new QueenPiece(7, 3, PieceColor.Black, this));
+            AddPiece(new KingPiece(7, 4, PieceColor.Black, this));
 
-            AddPiece(new PawnPiece(1, 0, PieceColor.White));
-            AddPiece(new PawnPiece(1, 1, PieceColor.White));
-            AddPiece(new PawnPiece(1, 2, PieceColor.White));
-            AddPiece(new PawnPiece(1, 3, PieceColor.White));
-            AddPiece(new PawnPiece(1, 4, PieceColor.White));
-            AddPiece(new PawnPiece(1, 5, PieceColor.White));
-            AddPiece(new PawnPiece(1, 6, PieceColor.White));
-            AddPiece(new PawnPiece(1, 7, PieceColor.White));
-            AddPiece(new KnightPiece(0, 1, PieceColor.White));
-            AddPiece(new KnightPiece(0, 6, PieceColor.White));
-            AddPiece(new BishopPiece(0, 2, PieceColor.White));
-            AddPiece(new BishopPiece(0, 5, PieceColor.White));
-            AddPiece(new RookPiece(0, 0, PieceColor.White));
-            AddPiece(new RookPiece(0, 7, PieceColor.White));
-            AddPiece(new QueenPiece(0, 3, PieceColor.White));
-            AddPiece(new KingPiece(0, 4, PieceColor.White));
-
-
-            //AddPiece(new KingPiece(4, 4, PieceColor.White));
-
-
+            AddPiece(new PawnPiece(1, 0, PieceColor.White, this));
+            AddPiece(new PawnPiece(1, 1, PieceColor.White, this));
+            AddPiece(new PawnPiece(1, 2, PieceColor.White, this));
+            AddPiece(new PawnPiece(1, 3, PieceColor.White, this));
+            AddPiece(new PawnPiece(1, 4, PieceColor.White, this));
+            AddPiece(new PawnPiece(1, 5, PieceColor.White, this));
+            AddPiece(new PawnPiece(1, 6, PieceColor.White, this));
+            AddPiece(new PawnPiece(1, 7, PieceColor.White, this));
+            AddPiece(new KnightPiece(0, 1, PieceColor.White, this));
+            AddPiece(new KnightPiece(0, 6, PieceColor.White, this));
+            AddPiece(new BishopPiece(0, 2, PieceColor.White, this));
+            AddPiece(new BishopPiece(0, 5, PieceColor.White, this));
+            AddPiece(new RookPiece(0, 0, PieceColor.White, this));
+            AddPiece(new RookPiece(0, 7, PieceColor.White, this));
+            AddPiece(new QueenPiece(0, 3, PieceColor.White, this));
+            AddPiece(new KingPiece(0, 4, PieceColor.White, this));
+            
+            /*
+            AddPiece(new KingPiece(4, 4, PieceColor.White, this));
+            AddPiece(new RookPiece(0, 3, PieceColor.Black, this));
+            AddPiece(new RookPiece(0, 5, PieceColor.Black, this));
+            AddPiece(new RookPiece(3, 1, PieceColor.Black, this));
+            AddPiece(new RookPiece(2, 2, PieceColor.Black, this));
+            AddPiece(new RookPiece(0, 2, PieceColor.Black, this));
+            */
             //TableStatus[1] = (int)CellStatus.Movable;
 
             ActivePlayer = WhitePlayer;
@@ -142,9 +147,18 @@ namespace CBack
             return true;
         }
 
-        /// <summary>
-        /// Obsoleted. Use SelectPiece(Piece) instead.
-        /// </summary>
+        public List<Piece> GetPieces(PieceColor _color)
+        {
+            List<Piece> pieces = new List<Piece>();
+
+            foreach (Piece pcs in Table)
+                if (pcs != null && pcs.Color == _color)
+                    pieces.Add(pcs);
+
+            return pieces;
+        }
+
+        [Obsolete("Obsoleted. Use SelectPiece(Piece) instead.")]
         private bool SelectPieceLegacy(Piece _pcs)
         {
             SelectedPiece = _pcs;
@@ -155,7 +169,7 @@ namespace CBack
                 return false;
             }
             //Console.WriteLine($"Piece {_pcs} selected.");
-            TableStatus = _pcs.GetMovableMap(Table);
+            TableStatus = _pcs.GetMovableMap();
             return true;
         }
 
@@ -255,7 +269,7 @@ namespace CBack
                 return false;
             }
             SelectedPiece = _pcs;
-            TableStatus = _pcs.GetMovableMap(Table);
+            TableStatus = _pcs.GetMovableMap();
             TableStatus[GetIndex(SelectedPiece.Row, SelectedPiece.Column)] |= (int)CellStatus.Selecting;
             AppendLastMovement();
             return true;
@@ -354,7 +368,7 @@ namespace CBack
 
         }
 
-        [Obsolete("This method is obsoleted. Use SelectCell(int, int) instead.")]
+        [Obsolete("Obsoleted. Use SelectCell(int, int) instead.")]
         public bool SelectPieceAt(int _row, int _col)
         {
             if (_row < 0 || _row >= ColumnSize || _col < 0 || _col >= RowSize)
@@ -384,7 +398,7 @@ namespace CBack
             else
             {
                 SelectedPiece = piece;
-                TableStatus = piece.GetMovableMap(Table);
+                TableStatus = piece.GetMovableMap();
                 TableStatus[SelectedPiece.Row * ColumnSize + SelectedPiece.Column] = (int)CellStatus.Selecting;
             }
 

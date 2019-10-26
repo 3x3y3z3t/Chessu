@@ -5,8 +5,8 @@ namespace CBack.Pieces
 {
     public class RookPiece : Piece
     {
-        public RookPiece(int _row, int _column, PieceColor _color)
-            : base(_row, _column, _color, PieceType.Rook)
+        public RookPiece(int _row, int _column, PieceColor _color, Game _owner)
+            : base(_row, _column, _color, PieceType.Rook, _owner)
         { }
 
         public override bool Move(int _dstRow, int _dstCol)
@@ -19,14 +19,14 @@ namespace CBack.Pieces
             return base.Move(_dstRow, _dstCol);
         }
 
-        public override int[] GetMovableMap(Piece[] _table)
+        public override int[] GetMovableMap()
         {
-            int[] map = base.GetMovableMap(_table);
+            int[] map = base.GetMovableMap();
 
             int[] hmap = CastHorizontalRay(map);
             int[] vmap = CastVerticalRay(map);
 
-            for (int i = 0; i < _table.Length; ++i)
+            for (int i = 0; i < map.Length; ++i)
             {
                 map[i] |= (hmap[i] | vmap[i]);
             }

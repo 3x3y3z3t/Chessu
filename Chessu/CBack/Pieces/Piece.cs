@@ -18,7 +18,8 @@ namespace CBack.Pieces
          * Some pieces may not ultilize this value.*/
         public int MoveRange { get; set; }
 
-        protected List<Tuple<int, int>> MovementDirection { get; set; }
+        public Game Owner { get; set; }
+
 
         private static readonly PieceType[] raycastRestricType = new PieceType[]
         {
@@ -26,7 +27,7 @@ namespace CBack.Pieces
             PieceType.Knight,
         };
 
-        protected Piece(int _row, int _column, PieceColor _color, PieceType _type)
+        protected Piece(int _row, int _column, PieceColor _color, PieceType _type, Game _owner)
         {
             Row = _row;
             Column = _column;
@@ -37,9 +38,8 @@ namespace CBack.Pieces
             // Instead of perform another check for null move range, we just give it a ridiculous range;
             MoveRange = 999;
 
+            Owner = _owner;
 
-
-            MovementDirection = new List<Tuple<int, int>>();
         }
 
         public virtual bool Move(int _dstRow, int _dstCol)
@@ -64,12 +64,12 @@ namespace CBack.Pieces
             // TODO: *hint* *hint*;
         }
 
-        public virtual int[] GetMovableMap(Piece[] _table)
+        public virtual int[] GetMovableMap()
         {
-            int[] map = new int[_table.Length];
+            int[] map = new int[Owner.Table.Length];
             for (int i = 0; i < map.Length; ++i)
             {
-                Piece pcs = _table[i];
+                Piece pcs = Owner.Table[i];
                 if (pcs != null)
                 {
                     if (pcs == this)
@@ -108,7 +108,9 @@ namespace CBack.Pieces
                 return true;
             }
 
-            if (Game.IsSpecificFlagSet(_map[_pos], CellStatus.EnemyOccupied))
+            if (Game.IsSpecificFlagSet(_map[_pos], CellStatus.AllyOccupied))
+                _map[_pos] |= (int)CellStatus.Protected;
+            else if (Game.IsSpecificFlagSet(_map[_pos], CellStatus.EnemyOccupied))
                 _map[_pos] |= (int)CellStatus.Targetable;
 
             return CanJump;

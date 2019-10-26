@@ -5,8 +5,8 @@ namespace CBack.Pieces
 {
     public class QueenPiece : Piece
     {
-        public QueenPiece(int _row = 0, int _column = 0, PieceColor _color = PieceColor.Black)
-            : base(_row, _column, _color, PieceType.Queen)
+        public QueenPiece(int _row, int _column, PieceColor _color, Game _owner)
+            : base(_row, _column, _color, PieceType.Queen, _owner)
         { }
 
         public override bool Move(int _dstRow, int _dstCol)
@@ -19,16 +19,16 @@ namespace CBack.Pieces
             return base.Move(_dstRow, _dstCol);
         }
 
-        public override int[] GetMovableMap(Piece[] _table)
+        public override int[] GetMovableMap()
         {
-            int[] map = base.GetMovableMap(_table);
+            int[] map = base.GetMovableMap();
 
             int[] hmap = CastHorizontalRay(map);
             int[] vmap = CastVerticalRay(map);
             int[] swne = CastSWNERay(map);
             int[] senw = CastSENWRay(map);
 
-            for (int i = 0; i < _table.Length; ++i)
+            for (int i = 0; i < map.Length; ++i)
             {
                 map[i] |= (hmap[i] | vmap[i] | swne[i] | senw[i]);
             }
