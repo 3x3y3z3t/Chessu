@@ -19,8 +19,7 @@ namespace CBack.Pieces
         public int MoveRange { get; set; }
 
         public Game Owner { get; set; }
-
-
+        
         private static readonly PieceType[] raycastRestricType = new PieceType[]
         {
             PieceType.Pawn,

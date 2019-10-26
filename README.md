@@ -2,4 +2,4 @@
 Chess. In C#. Chess#.
 
 ## Version
-v.0.8.1
+v.0.8.2

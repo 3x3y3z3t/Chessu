@@ -66,7 +66,8 @@ namespace Chessu
 
         private static Brush overlayBrush = new SolidBrush(Color.FromArgb(0x44FFFFFF));
         private static Pen cyanPen = new Pen(Color.Cyan, 3);
-        private static Pen redPen = new Pen(Color.DarkRed, 3);
+        private static Pen darkRedPen = new Pen(Color.DarkRed, 3);
+        private static Pen redPen = new Pen(Color.Red, 3);
         private static Pen yellowPen = new Pen(Color.Yellow, 3);
 
         public GamePanel()
@@ -171,6 +172,7 @@ namespace Chessu
                 //Console.WriteLine("Unpieced!");
 
             }
+            Invalidate();
         }
 
         private void GamePanel_MouseDown(object sender, MouseEventArgs e)
@@ -201,7 +203,7 @@ namespace Chessu
             //Console.WriteLine(cursorOffs);
             //Invalidate(new Rectangle(cursorOffs.X - 105, cursorOffs.Y - 105, 210, 210));
             Invalidate();
-            Update();
+            //Update();
             return;
             if (e.Button != MouseButtons.Left)
                 return;
@@ -267,12 +269,16 @@ namespace Chessu
                 if (Game.IsFlagSetAtCell(i, CBack.CellStatus.Targetable))
                 {
                     // TODO: draw red curved rect;
-                    g.DrawRectangle(redPen, boardEdge + CalcXFromIndex(i) + offs, boardEdge + CalcYFromIndex(i) + offs, 70 - offs - offs, 70 - offs - offs);
+                    g.DrawRectangle(darkRedPen, boardEdge + CalcXFromIndex(i) + offs, boardEdge + CalcYFromIndex(i) + offs, 70 - offs - offs, 70 - offs - offs);
                 }
                 if (Game.IsFlagSetAtCell(i, CBack.CellStatus.Movable))
                 {
                     // TODO: draw cyan curved rect;
                     g.DrawRectangle(cyanPen, boardEdge + CalcXFromIndex(i) + offs, boardEdge + CalcYFromIndex(i) + offs, 70 - offs - offs, 70 - offs - offs);
+                }
+                if (Game.IsFlagSetAtCell(i, CBack.CellStatus.Checking))
+                {
+                    g.DrawRectangle(redPen, boardEdge + CalcXFromIndex(i) + offs, boardEdge + CalcYFromIndex(i) + offs, 70 - offs - offs, 70 - offs - offs);
                 }
                 if (Game.IsFlagSetAtCell(i, CBack.CellStatus.Selecting))
                 {

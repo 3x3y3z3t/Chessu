@@ -57,6 +57,7 @@ namespace CBack
         public Piece SelectedPiece { get; private set; }
         public int[] TableStatus { get; private set; }
         public Tuple<int, int> LastMovement { get; private set; }
+        public List<int> LastCheck { get; private set; }
 
         public PawnPiece LastMovedPawn { get; private set; }
         private bool newGame = true;
@@ -71,13 +72,14 @@ namespace CBack
             //TableStatus = Enumerable.Repeat(1, RowSize * ColumnSize).ToArray(); // LINQ approach;
             LastMovement = null;
             LastMovedPawn = null;
-            
+            LastCheck = new List<int>();
+
             // now adding pieces...
             AddPiece(new PawnPiece(6, 0, PieceColor.Black, this));
             AddPiece(new PawnPiece(6, 1, PieceColor.Black, this));
             AddPiece(new PawnPiece(6, 2, PieceColor.Black, this));
             AddPiece(new PawnPiece(6, 3, PieceColor.Black, this));
-            AddPiece(new PawnPiece(6, 4, PieceColor.Black, this));
+            //AddPiece(new PawnPiece(6, 4, PieceColor.Black, this));
             AddPiece(new PawnPiece(6, 5, PieceColor.Black, this));
             AddPiece(new PawnPiece(6, 6, PieceColor.Black, this));
             AddPiece(new PawnPiece(6, 7, PieceColor.Black, this));
@@ -94,7 +96,7 @@ namespace CBack
             AddPiece(new PawnPiece(1, 1, PieceColor.White, this));
             AddPiece(new PawnPiece(1, 2, PieceColor.White, this));
             AddPiece(new PawnPiece(1, 3, PieceColor.White, this));
-            AddPiece(new PawnPiece(1, 4, PieceColor.White, this));
+            //AddPiece(new PawnPiece(1, 4, PieceColor.White, this));
             AddPiece(new PawnPiece(1, 5, PieceColor.White, this));
             AddPiece(new PawnPiece(1, 6, PieceColor.White, this));
             AddPiece(new PawnPiece(1, 7, PieceColor.White, this));
@@ -106,7 +108,7 @@ namespace CBack
             AddPiece(new RookPiece(0, 7, PieceColor.White, this));
             AddPiece(new QueenPiece(0, 3, PieceColor.White, this));
             AddPiece(new KingPiece(0, 4, PieceColor.White, this));
-            
+
             /*
             AddPiece(new KingPiece(4, 4, PieceColor.White, this));
             AddPiece(new RookPiece(0, 3, PieceColor.Black, this));
@@ -153,6 +155,17 @@ namespace CBack
 
             foreach (Piece pcs in Table)
                 if (pcs != null && pcs.Color == _color)
+                    pieces.Add(pcs);
+
+            return pieces;
+        }
+
+        public List<Piece> GetPieces(PieceType _type, PieceColor _color)
+        {
+            List<Piece> pieces = new List<Piece>();
+
+            foreach (Piece pcs in Table)
+                if (pcs != null && pcs.Type == _type && pcs.Color == _color)
                     pieces.Add(pcs);
 
             return pieces;
@@ -256,7 +269,27 @@ namespace CBack
         {
             SelectedPiece = null;
             TableStatus = new int[Table.Length];
-            AppendLastMovement();
+            //RefreshTableStatuses();
+
+            AppendLastMoveStats();
+            return true;
+        }
+
+        private bool RefreshTableStatuses(int[] _base = null)
+        {
+            for (int i = 0; i < TableStatus.Length; ++i)
+            {
+                int newflag = (int)CellStatus.Empty;
+                if (_base != null)
+                    newflag |= _base[i];
+                if (IsSpecificFlagSet(TableStatus[i], CellStatus.LastMove))
+                    newflag |= (int)CellStatus.LastMove;
+                if (IsSpecificFlagSet(TableStatus[i], CellStatus.Checking))
+                    newflag |= (int)CellStatus.Checking;
+
+                TableStatus[i] = newflag;
+            }
+
             return true;
         }
 
@@ -266,21 +299,20 @@ namespace CBack
             {
                 Console.WriteLine($"Piece to be selected is null (and it should not be null).");
                 TableStatus = new int[Table.Length];
+                //RefreshTableStatuses();
                 return false;
             }
             SelectedPiece = _pcs;
+            //RefreshTableStatuses(_pcs.GetMovableMap());
             TableStatus = _pcs.GetMovableMap();
             TableStatus[GetIndex(SelectedPiece.Row, SelectedPiece.Column)] |= (int)CellStatus.Selecting;
-            AppendLastMovement();
+            AppendLastMoveStats();
             return true;
         }
 
         /// <summary>
         /// Move the SelectedPiece to the target cell.
         /// </summary>
-        /// <param name="_row">The target cell row.</param>
-        /// <param name="_col">The target cell column.</param>
-        /// <returns>Always returns true.</returns>
         private bool MovePieceTo(int _row, int _col)
         {
             if (LastMovedPawn != null)
@@ -292,6 +324,9 @@ namespace CBack
             // the SelectedPiece is being moved so there is no need to get the piece;
             // the move is always a valid move so there is no need to validate it;
             LastMovement = Tuple.Create(GetIndex(SelectedPiece.Row, SelectedPiece.Column), GetIndex(_row, _col));
+            //TableStatus[GetIndex(SelectedPiece.Row, SelectedPiece.Column)] |= (int)CellStatus.LastMove;
+            //TableStatus[GetIndex(_row, _col)] |= (int)CellStatus.LastMove;
+
             Array.Copy(Table, GetIndex(SelectedPiece.Row, SelectedPiece.Column), Table, GetIndex(_row, _col), 1);
             Table[GetIndex(SelectedPiece.Row, SelectedPiece.Column)] = null;
             int pcsRow = _row;
@@ -303,16 +338,35 @@ namespace CBack
                     Table[GetIndex(pcsRow - 1, _col)] = null;
             }
             SelectedPiece.Move(_row, _col);
+
+            // TODO: verify for check;
+            LastCheck.Clear();
+            foreach (PieceColor color in Enum.GetValues(typeof(PieceColor)))
+            {
+                List<Piece> pieces = GetPieces(PieceType.King, color);
+
+                foreach (Piece pcs in pieces)
+                {
+                    KingPiece kingPcs = pcs as KingPiece;
+
+                    int[] checkmap = kingPcs.GetCheckMap();
+                    for (int i = 0; i < TableStatus.Length; ++i)
+                    {
+                        if (IsSpecificFlagSet(checkmap[i], CellStatus.Checking))
+                            LastCheck.Add(i);
+                    }
+                }
+
+            }
+
+
             Switch();
             return true;
-            Console.WriteLine("MovePiece Method Not implemented.");
         }
 
         /// <summary>
         /// Attack the piece at the target cell using the SelectedPiece.
         /// </summary>
-        /// <param name="_row">The target piece row.</param>
-        /// <param name="_col">The target piece column.</param>
         /// <returns>true if the attack success and the SelectedPiece moves to occupy the target cell,
         /// false if the attack success and the SelectedPiece stays at its cell.</returns>
         private bool AttackPieceAt(int _row, int _col)
@@ -336,13 +390,14 @@ namespace CBack
                     LastMovedPawn.EnPassantEligible = false;
                 // pieces stay still!
                 LastMovement = Tuple.Create(GetIndex(SelectedPiece.Row, SelectedPiece.Column), GetIndex(_row, _col));
+                //TableStatus[GetIndex(SelectedPiece.Row, SelectedPiece.Column)] |= (int)CellStatus.LastMove;
+                //TableStatus[GetIndex(_row, _col)] |= (int)CellStatus.LastMove;
                 Switch();
             }
             return dead;
-            Console.WriteLine("AttackPiece Method Not implemented.");
         }
 
-        private bool AppendLastMovement()
+        private bool AppendLastMoveStats()
         {
             if (TableStatus == null)
             {
@@ -354,7 +409,6 @@ namespace CBack
                 if (newGame)
                 {
                     Console.WriteLine($"LastMovement is null (newGame).");
-                    return true;
                 }
                 else
                 {
@@ -362,8 +416,21 @@ namespace CBack
                     return false;
                 }
             }
-            TableStatus[LastMovement.Item1] |= (int)CellStatus.LastMove;
-            TableStatus[LastMovement.Item2] |= (int)CellStatus.LastMove;
+            else
+            {
+                TableStatus[LastMovement.Item1] |= (int)CellStatus.LastMove;
+                TableStatus[LastMovement.Item2] |= (int)CellStatus.LastMove;
+            }
+            if (LastCheck == null)
+            {
+                Console.WriteLine($"LastCheck is null (internal).");
+                return false;
+            }
+            foreach(int index in LastCheck)
+            {
+                TableStatus[index] |= (int)CellStatus.Checking;
+            }
+
             return true;
 
         }

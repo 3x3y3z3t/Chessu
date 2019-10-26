@@ -6,6 +6,8 @@ namespace CBack.Pieces
 {
     public class KingPiece : Piece
     {
+
+
         public KingPiece(int _row, int _column, PieceColor _color, Game _owner)
             : base(_row, _column, _color, PieceType.King, _owner)
         {
@@ -81,6 +83,33 @@ namespace CBack.Pieces
             return map;
         }
 
+        public int[] GetCheckMap()
+        {
+            int[] map = new int[Owner.Table.Length];
+            foreach (PieceColor color in Enum.GetValues(typeof(PieceColor)))
+            {
+                if (color == Color)
+                    continue;
+
+                List<Piece> enemyPieces = Owner.GetPieces(color);
+                foreach (Piece pcs in enemyPieces)
+                {
+                    if (pcs.Type == PieceType.King)
+                        continue;
+
+                    int[] enemyMap = pcs.GetMovableMap();
+                    int flags = enemyMap[Game.GetIndex(Row, Column)];
+                    if (Game.IsSpecificFlagSet(flags, CellStatus.Targetable))
+                    {
+                        map[Game.GetIndex(pcs.Row, pcs.Column)] |= (int)CellStatus.Checking;
+                        map[Game.GetIndex(Row, Column)] |= (int)CellStatus.Checking;
+                    }
+                }
+            }
+
+            return map;
+        }
+
         private int[] GetEnemyMovableMap()
         {
             int[] map = new int[Owner.Table.Length];
@@ -95,6 +124,7 @@ namespace CBack.Pieces
                     if (pcs.Type == PieceType.King)
                     {
                         // TODO: handle king vs. king;
+                        continue;
                     }
 
                     int[] enemyMap = pcs.GetMovableMap();

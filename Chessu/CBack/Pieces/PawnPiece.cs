@@ -54,18 +54,18 @@ namespace CBack.Pieces
             // target;
             if (Column != 7)
             {
-                if (Owner.Table[front + mod1] != null)
+                if (Owner.Table[front + 1] != null)
                 {
-                    if (Owner.Table[front + mod1].Color != Color)
-                        map[front + mod1] |= (int)CellStatus.Targetable;
+                    if (Owner.Table[front + 1].Color != Color)
+                        map[front + 1] |= (int)CellStatus.Targetable;
                 }
             }
             if (Column != 0)
             {
-                if (Owner.Table[front - mod1] != null)
+                if (Owner.Table[front - 1] != null)
                 {
-                    if (Owner.Table[front - mod1].Color != Color)
-                        map[front - mod1] |= (int)CellStatus.Targetable;
+                    if (Owner.Table[front - 1].Color != Color)
+                        map[front - 1] |= (int)CellStatus.Targetable;
                 }
             }
             
